@@ -22,13 +22,15 @@ const Dashboard: React.FC = () => {
              const processed = sorted.map((r: any) => {
                  const avgRt = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].avgResponseTime) : 0;
                  const throughput = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].throughput) : 0;
+                 const errorRate = r.metrics && r.metrics.length > 0 ? Number((r.metrics.reduce((acc: number, m: any) => acc + m.errorRate, 0) / r.metrics.length * 100).toFixed(2)) : 0;
                  
                  return {
                      id: r.id,
                      version: r.applicationVersion,
                      date: new Date(r.uploadTimestamp).toISOString().split('T')[0],
                      avgRt,
-                     throughput
+                     throughput,
+                     errorRate
                  };
              });
              setRuns(processed);
@@ -106,24 +108,24 @@ const Dashboard: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(tableRuns.length / 10));
   const paginatedRuns = tableRuns.slice((currentPage - 1) * 10, currentPage * 10);
 
-  const getTrendIcon = (run: any, type: 'rt' | 'tp') => {
+  const getTrendIcon = (run: any, type: 'rt' | 'tp' | 'er') => {
     const currentIndex = tableRuns.findIndex(r => r.id === run.id);
     if (currentIndex === -1 || currentIndex === tableRuns.length - 1) return null;
 
     const prevRun = tableRuns[currentIndex + 1];
-    const current = type === 'rt' ? run.avgRt : run.throughput;
-    const prev = type === 'rt' ? prevRun.avgRt : prevRun.throughput;
+    const current = type === 'rt' ? run.avgRt : type === 'tp' ? run.throughput : run.errorRate;
+    const prev = type === 'rt' ? prevRun.avgRt : type === 'tp' ? prevRun.throughput : prevRun.errorRate;
 
-    if (current === prev) return <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontWeight: 'bold' }}>=</span>;
+    if (Math.abs(current - prev) < 0.01) return <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontWeight: 'bold' }}>=</span>;
 
-    if (type === 'rt') {
-        return current < prev 
-            ? <span style={{ color: 'var(--success)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↓</span> 
-            : <span style={{ color: 'var(--error)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↑</span>;
-    } else {
+    if (type === 'tp') {
         return current > prev 
             ? <span style={{ color: 'var(--success)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↑</span> 
             : <span style={{ color: 'var(--error)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↓</span>;
+    } else {
+        return current < prev 
+            ? <span style={{ color: 'var(--success)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↓</span> 
+            : <span style={{ color: 'var(--error)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↑</span>;
     }
   };
 
@@ -136,9 +138,9 @@ const Dashboard: React.FC = () => {
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '3rem' }}>
         <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', fontWeight: 500 }}>Response Time Evolution (ms)</h3>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', fontWeight: 500, fontSize: '1.2rem' }}>Response Time Evolution (ms)</h3>
             <div style={{ height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={runs}>
@@ -153,7 +155,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', fontWeight: 500 }}>Throughput Evolution (req/s)</h3>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', fontWeight: 500, fontSize: '1.2rem' }}>Throughput Evolution (req/s)</h3>
             <div style={{ height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={runs}>
@@ -162,6 +164,21 @@ const Dashboard: React.FC = () => {
                     <YAxis stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }} />
                     <Line type="monotone" dataKey="throughput" stroke="var(--accent)" strokeWidth={3} dot={{ r: 6, fill: 'var(--bg-base)', strokeWidth: 2 }} activeDot={{ r: 8, fill: 'var(--accent)' }} />
+                    </LineChart>
+                </ResponsiveContainer>
+                </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '2rem' }}>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', fontWeight: 500, fontSize: '1.2rem' }}>Error Rate (%)</h3>
+            <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={runs}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                    <XAxis dataKey="version" stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
+                    <YAxis stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }} />
+                    <Line type="monotone" dataKey="errorRate" stroke="var(--error)" strokeWidth={3} dot={{ r: 6, fill: 'var(--bg-base)', strokeWidth: 2 }} activeDot={{ r: 8, fill: 'var(--error)' }} />
                     </LineChart>
                 </ResponsiveContainer>
             </div>
@@ -177,13 +194,14 @@ const Dashboard: React.FC = () => {
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Date</th>
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Avg Response Time</th>
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Throughput</th>
+              <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Error Rate</th>
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {paginatedRuns.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No test runs uploaded yet. Start by creating a New Upload!</td>
+                <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No test runs uploaded yet. Start by creating a New Upload!</td>
               </tr>
             )}
             {paginatedRuns.map((run) => (
@@ -195,6 +213,9 @@ const Dashboard: React.FC = () => {
                 </td>
                 <td style={{ padding: '1.25rem 1.5rem', color: 'var(--accent)' }}>
                   {run.throughput} r/s {getTrendIcon(run, 'tp')}
+                </td>
+                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--error)' }}>
+                  {run.errorRate}% {getTrendIcon(run, 'er')}
                 </td>
                 <td style={{ padding: '1.25rem 1.5rem' }}>
                   <button className="btn btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px' }}>Details</button>

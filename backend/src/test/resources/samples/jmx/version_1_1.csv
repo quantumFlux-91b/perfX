@@ -4,3 +4,4 @@ timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success
 1712400002000,115,GET /api/users,200,OK,Thread-1,text,true,,1024,512,1,1,http://host/api/users,95,0,10
 1712400000000,450,POST /api/payments,200,OK,Thread-2,text,true,,2048,1024,2,2,http://host/api/payments,400,0,20
 1712400003000,460,POST /api/payments,200,OK,Thread-2,text,true,,2048,1024,2,2,http://host/api/payments,410,0,20
+1712400004000,105,GET /api/users,404,Not Found,Thread-1,text,true,,1024,512,1,1,http://host/api/users,100,0,10

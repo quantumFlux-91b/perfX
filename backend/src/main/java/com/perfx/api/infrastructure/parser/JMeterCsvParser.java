@@ -42,6 +42,11 @@ public class JMeterCsvParser implements TestResultParser {
                 double elapsed = Double.parseDouble(record.get("elapsed"));
                 boolean success = Boolean.parseBoolean(record.get("success"));
                 String responseCode = record.get("responseCode");
+                if (responseCode != null && responseCode.matches("\\d+")) {
+                    if (Integer.parseInt(responseCode) >= 400) {
+                        success = false;
+                    }
+                }
 
                 minTimeStamp = Math.min(minTimeStamp, timeStamp);
                 maxTimeStamp = Math.max(maxTimeStamp, timeStamp);
