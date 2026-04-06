@@ -35,7 +35,7 @@ public class TestRunService implements UploadTestResultUseCase, GetTestRunsUseCa
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported format or tool: " + tool));
 
-        List<TestMetric> metrics = parser.parse(fileStream);
+        com.perfx.api.domain.model.ParsedMetrics parsed = parser.parse(fileStream);
 
         TestRun testRun = TestRun.builder()
                 .userId(userId)
@@ -43,10 +43,12 @@ public class TestRunService implements UploadTestResultUseCase, GetTestRunsUseCa
                 .applicationVersion(applicationVersion)
                 .runId(runId != null && !runId.isEmpty() ? runId : String.valueOf(Instant.now().toEpochMilli()))
                 .uploadTimestamp(Instant.now())
-                .metrics(metrics)
+                .metrics(parsed.getAggregateMetrics())
+                .timeSeriesMetrics(parsed.getTimeSeriesMetrics())
                 .build();
                 
-        metrics.forEach(m -> m.setTestRunId(testRun.getId()));
+        parsed.getAggregateMetrics().forEach(m -> m.setTestRunId(testRun.getId()));
+        parsed.getTimeSeriesMetrics().forEach(m -> m.setTestRunId(testRun.getId()));
 
         return testRunRepository.save(testRun);
     }

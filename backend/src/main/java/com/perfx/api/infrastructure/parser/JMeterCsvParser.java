@@ -14,6 +14,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import com.perfx.api.domain.model.ParsedMetrics;
+import com.perfx.api.domain.model.TestRunTimeSeriesMetric;
+
 @Component
 public class JMeterCsvParser implements TestResultParser {
 
@@ -23,8 +26,9 @@ public class JMeterCsvParser implements TestResultParser {
     }
 
     @Override
-    public List<TestMetric> parse(InputStream inputStream) {
-        Map<String, RequestStats> statsMap = new HashMap<>();
+    public ParsedMetrics parse(InputStream inputStream) {
+        Map<String, RequestStats> aggregateStatsMap = new HashMap<>();
+        Map<String, RequestStats> timeSeriesStatsMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())) {
@@ -51,8 +55,15 @@ public class JMeterCsvParser implements TestResultParser {
                 minTimeStamp = Math.min(minTimeStamp, timeStamp);
                 maxTimeStamp = Math.max(maxTimeStamp, timeStamp);
 
-                RequestStats stats = statsMap.computeIfAbsent(label, k -> new RequestStats());
-                stats.addResponse(elapsed, success, responseCode);
+                // Add to global aggregate
+                RequestStats globalStats = aggregateStatsMap.computeIfAbsent(label, k -> new RequestStats());
+                globalStats.addResponse(elapsed, success, responseCode);
+                
+                // Add to time series aggregate. Group by (minuteOffset|requestName)
+                int minuteOffset = (int) ((timeStamp - minTimeStamp) / 60000);
+                String tsKey = minuteOffset + "|" + label;
+                RequestStats tsStats = timeSeriesStatsMap.computeIfAbsent(tsKey, k -> new RequestStats());
+                tsStats.addResponse(elapsed, success, responseCode);
             }
 
             double durationInSeconds = (maxTimeStamp - minTimeStamp) / 1000.0;
@@ -60,8 +71,8 @@ public class JMeterCsvParser implements TestResultParser {
                 durationInSeconds = 1.0;
             }
 
-            List<TestMetric> metrics = new ArrayList<>();
-            for (Map.Entry<String, RequestStats> entry : statsMap.entrySet()) {
+            List<TestMetric> aggregateMetrics = new ArrayList<>();
+            for (Map.Entry<String, RequestStats> entry : aggregateStatsMap.entrySet()) {
                 String label = entry.getKey();
                 RequestStats stats = entry.getValue();
                 
@@ -76,10 +87,29 @@ public class JMeterCsvParser implements TestResultParser {
                         .errorCode(stats.getMostFrequentErrorCode())
                         .build();
 
-                metrics.add(metric);
+                aggregateMetrics.add(metric);
             }
 
-            return metrics;
+            List<TestRunTimeSeriesMetric> timeSeriesMetrics = new ArrayList<>();
+            for (Map.Entry<String, RequestStats> entry : timeSeriesStatsMap.entrySet()) {
+                String[] parts = entry.getKey().split("\\|", 2);
+                int minuteOffset = Integer.parseInt(parts[0]);
+                String label = parts[1];
+                RequestStats stats = entry.getValue();
+                
+                TestRunTimeSeriesMetric metric = TestRunTimeSeriesMetric.builder()
+                        .minuteOffset(minuteOffset)
+                        .requestName(label)
+                        .avgResponseTime(stats.descriptiveStatistics.getMean())
+                        .percentile98(stats.descriptiveStatistics.getPercentile(98.0))
+                        .throughput(stats.count / 60.0) // Fixed to 60.0s for a full 1-minute bucket. Last bucket might be smaller, but standard is 60s window throughput.
+                        .errorRate((double) stats.errorCount / stats.count)
+                        .build();
+
+                timeSeriesMetrics.add(metric);
+            }
+
+            return new ParsedMetrics(aggregateMetrics, timeSeriesMetrics);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse JMeter CSV", e);

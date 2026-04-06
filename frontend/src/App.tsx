@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Compare from './pages/Compare';
+import Details from './pages/Details';
 import Login from './pages/Login';
 
 function AppContent() {
@@ -31,6 +32,7 @@ function AppContent() {
           <Route path="/" element={<Login />} />
           <Route path="/applications" element={<Dashboard />} />
           <Route path="/applications/:applicationName" element={<Dashboard />} />
+          <Route path="/applications/:applicationName/:version/details" element={<Details />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/compare" element={<Compare />} />
         </Routes>

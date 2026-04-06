@@ -29,4 +29,8 @@ public class TestRunEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "test_run_id", nullable = false)
     private List<TestMetricEntity> metrics;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_run_id", nullable = false)
+    private List<TestRunTimeSeriesMetricEntity> timeSeriesMetrics;
 }

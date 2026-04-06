@@ -69,6 +69,22 @@ public class TestRunPersistenceAdapter implements TestRunRepository {
             }).collect(Collectors.toList());
             entity.setMetrics(metrics);
         }
+
+        if (domain.getTimeSeriesMetrics() != null) {
+            List<com.perfx.api.infrastructure.persistence.entity.TestRunTimeSeriesMetricEntity> timeSeriesMetrics = domain.getTimeSeriesMetrics().stream().map(m -> {
+                com.perfx.api.infrastructure.persistence.entity.TestRunTimeSeriesMetricEntity me = new com.perfx.api.infrastructure.persistence.entity.TestRunTimeSeriesMetricEntity();
+                me.setId(m.getId());
+                me.setTestRunId(domain.getId());
+                me.setMinuteOffset(m.getMinuteOffset());
+                me.setRequestName(m.getRequestName());
+                me.setAvgResponseTime(m.getAvgResponseTime());
+                me.setPercentile98(m.getPercentile98());
+                me.setThroughput(m.getThroughput());
+                me.setErrorRate(m.getErrorRate());
+                return me;
+            }).collect(Collectors.toList());
+            entity.setTimeSeriesMetrics(timeSeriesMetrics);
+        }
         return entity;
     }
 
@@ -90,6 +106,21 @@ public class TestRunPersistenceAdapter implements TestRunRepository {
              ).collect(Collectors.toList());
         }
 
+        List<com.perfx.api.domain.model.TestRunTimeSeriesMetric> timeSeriesMetrics = null;
+        if (entity.getTimeSeriesMetrics() != null) {
+             timeSeriesMetrics = entity.getTimeSeriesMetrics().stream().map(me -> com.perfx.api.domain.model.TestRunTimeSeriesMetric.builder()
+                .id(me.getId())
+                .testRunId(me.getTestRunId())
+                .minuteOffset(me.getMinuteOffset())
+                .requestName(me.getRequestName())
+                .avgResponseTime(me.getAvgResponseTime())
+                .percentile98(me.getPercentile98())
+                .throughput(me.getThroughput())
+                .errorRate(me.getErrorRate())
+                .build()
+             ).collect(Collectors.toList());
+        }
+
         return TestRun.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
@@ -98,6 +129,7 @@ public class TestRunPersistenceAdapter implements TestRunRepository {
                 .runId(entity.getRunId())
                 .uploadTimestamp(entity.getUploadTimestamp())
                 .metrics(metrics)
+                .timeSeriesMetrics(timeSeriesMetrics)
                 .build();
     }
 }

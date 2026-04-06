@@ -17,4 +17,5 @@ public class TestRun {
     private String runId;
     private Instant uploadTimestamp;
     private List<TestMetric> metrics;
+    private List<TestRunTimeSeriesMetric> timeSeriesMetrics;
 }

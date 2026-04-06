@@ -218,7 +218,7 @@ const Dashboard: React.FC = () => {
                   {run.errorRate}% {getTrendIcon(run, 'er')}
                 </td>
                 <td style={{ padding: '1.25rem 1.5rem' }}>
-                  <button className="btn btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px' }}>Details</button>
+                  <button onClick={() => navigate(`/applications/${encodeURIComponent(applicationName || '')}/${run.version}/details`)} className="btn btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px' }}>Details</button>
                   <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px', marginLeft: '0.5rem' }} onClick={() => navigate(`/compare?application=${encodeURIComponent(applicationName)}&baseRunId=${run.id}`)}>Compare</button>
                 </td>
               </tr>
