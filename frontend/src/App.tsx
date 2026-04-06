@@ -21,8 +21,6 @@ function AppContent() {
           </div>
           <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
              <Link to="/applications" style={{ color: 'var(--text-main)', fontWeight: 600 }}>Applications</Link>
-             <Link to="/upload" style={{ color: 'var(--text-main)', fontWeight: 600 }}>Upload</Link>
-             <Link to="/compare" style={{ color: 'var(--text-main)', fontWeight: 600 }}>Compare</Link>
              <Link to="/" className="btn btn-glass" style={{ color: 'var(--text-muted)' }}>Logout</Link>
           </div>
         </nav>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
 import api, { mockUserId } from '../api';
 
@@ -11,6 +12,16 @@ const Compare: React.FC = () => {
   const [targetRunId, setTargetRunId] = useState('');
   const [compareData, setCompareData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const app = params.get('application');
+    const base = params.get('baseRunId');
+    if (app) setSelectedApp(decodeURIComponent(app));
+    if (base) setBaseRunId(base);
+  }, [location]);
 
   useEffect(() => {
       api.get(`/applications?userId=${mockUserId}`).then(res => setApplications(res.data)).catch(console.error);
@@ -44,7 +55,17 @@ const Compare: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <h2 style={{ fontSize: '2.2rem', margin: 0 }}>Compare Runs</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button 
+            className="btn btn-glass" 
+            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer' }}
+            onClick={() => navigate(selectedApp ? `/applications/${encodeURIComponent(selectedApp)}` : '/applications')}
+            title="Back to Application"
+          >
+            ←
+          </button>
+          <h2 style={{ fontSize: '2.2rem', margin: 0 }}>Compare Runs</h2>
+        </div>
       </div>
 
       <div className="glass-panel" style={{ padding: '2rem', marginBottom: '3rem', display: 'flex', gap: '2rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>

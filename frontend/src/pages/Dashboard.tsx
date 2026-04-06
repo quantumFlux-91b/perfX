@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Date</th>
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Avg Response Time</th>
               <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Throughput</th>
-              <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Action</th>
+              <th style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text-muted)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -161,6 +161,7 @@ const Dashboard: React.FC = () => {
                 <td style={{ padding: '1.25rem 1.5rem', color: 'var(--accent)' }}>{run.throughput} r/s</td>
                 <td style={{ padding: '1.25rem 1.5rem' }}>
                   <button className="btn btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px' }}>Details</button>
+                  <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px', marginLeft: '0.5rem' }} onClick={() => navigate(`/compare?application=${encodeURIComponent(applicationName)}&baseRunId=${run.id}`)}>Compare</button>
                 </td>
               </tr>
             ))}
