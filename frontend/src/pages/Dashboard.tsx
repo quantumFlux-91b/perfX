@@ -10,6 +10,7 @@ const Dashboard: React.FC = () => {
   const [runs, setRuns] = useState<any[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newAppName, setNewAppName] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!applicationName) {
@@ -17,14 +18,21 @@ const Dashboard: React.FC = () => {
     } else {
       api.get(`/test-runs?userId=${mockUserId}&applicationName=${encodeURIComponent(applicationName)}`)
          .then(res => {
-             const processed = res.data.map((r: any) => ({
-                 id: r.id,
-                 version: r.applicationVersion,
-                 date: new Date(r.uploadTimestamp).toISOString().split('T')[0],
-                 avgRt: r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].avgResponseTime) : 0,
-                 throughput: r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].throughput) : 0
-             }));
-             setRuns(processed.reverse());
+             const sorted = res.data.sort((a: any, b: any) => new Date(a.uploadTimestamp).getTime() - new Date(b.uploadTimestamp).getTime());
+             const processed = sorted.map((r: any) => {
+                 const avgRt = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].avgResponseTime) : 0;
+                 const throughput = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].throughput) : 0;
+                 
+                 return {
+                     id: r.id,
+                     version: r.applicationVersion,
+                     date: new Date(r.uploadTimestamp).toISOString().split('T')[0],
+                     avgRt,
+                     throughput
+                 };
+             });
+             setRuns(processed);
+             setCurrentPage(1);
          })
          .catch(console.error);
     }
@@ -94,6 +102,31 @@ const Dashboard: React.FC = () => {
       );
   }
 
+  const tableRuns = [...runs].reverse();
+  const totalPages = Math.max(1, Math.ceil(tableRuns.length / 10));
+  const paginatedRuns = tableRuns.slice((currentPage - 1) * 10, currentPage * 10);
+
+  const getTrendIcon = (run: any, type: 'rt' | 'tp') => {
+    const currentIndex = tableRuns.findIndex(r => r.id === run.id);
+    if (currentIndex === -1 || currentIndex === tableRuns.length - 1) return null;
+
+    const prevRun = tableRuns[currentIndex + 1];
+    const current = type === 'rt' ? run.avgRt : run.throughput;
+    const prev = type === 'rt' ? prevRun.avgRt : prevRun.throughput;
+
+    if (current === prev) return <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontWeight: 'bold' }}>=</span>;
+
+    if (type === 'rt') {
+        return current < prev 
+            ? <span style={{ color: 'var(--success)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↓</span> 
+            : <span style={{ color: 'var(--error)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↑</span>;
+    } else {
+        return current > prev 
+            ? <span style={{ color: 'var(--success)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↑</span> 
+            : <span style={{ color: 'var(--error)', marginLeft: '0.5rem', fontWeight: 'bold' }}>↓</span>;
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
@@ -135,7 +168,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Recent Test Runs</h3>
+      <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Test Runs</h3>
       <div className="glass-panel" style={{ overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
@@ -148,17 +181,21 @@ const Dashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {runs.length === 0 && (
+            {paginatedRuns.length === 0 && (
               <tr>
                 <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No test runs uploaded yet. Start by creating a New Upload!</td>
               </tr>
             )}
-            {runs.map((run) => (
+            {paginatedRuns.map((run) => (
               <tr key={run.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
                 <td style={{ padding: '1.25rem 1.5rem', fontWeight: 500 }}>{run.version}</td>
                 <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>{run.date}</td>
-                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--success)' }}>{run.avgRt} ms</td>
-                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--accent)' }}>{run.throughput} r/s</td>
+                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--success)' }}>
+                  {run.avgRt} ms {getTrendIcon(run, 'rt')}
+                </td>
+                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--accent)' }}>
+                  {run.throughput} r/s {getTrendIcon(run, 'tp')}
+                </td>
                 <td style={{ padding: '1.25rem 1.5rem' }}>
                   <button className="btn btn-glass" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px' }}>Details</button>
                   <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem', borderRadius: '20px', marginLeft: '0.5rem' }} onClick={() => navigate(`/compare?application=${encodeURIComponent(applicationName)}&baseRunId=${run.id}`)}>Compare</button>
@@ -168,6 +205,30 @@ const Dashboard: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
+          <button 
+            className="btn btn-glass" 
+            disabled={currentPage === 1} 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            style={{ padding: '0.5rem 1rem', borderRadius: '8px' }}
+          >
+            Previous
+          </button>
+          <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            className="btn btn-glass" 
+            disabled={currentPage === totalPages} 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            style={{ padding: '0.5rem 1rem', borderRadius: '8px' }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
