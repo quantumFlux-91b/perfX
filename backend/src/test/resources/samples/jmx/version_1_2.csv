@@ -1,0 +1,7 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1712500000000,95,GET /api/users,200,OK,Thread-1,text,true,,1024,512,1,1,http://host/api/users,80,0,10
+1712500001000,90,GET /api/users,200,OK,Thread-1,text,true,,1024,512,1,1,http://host/api/users,85,0,10
+1712500002000,100,GET /api/users,200,OK,Thread-1,text,true,,1024,512,1,1,http://host/api/users,90,0,10
+1712500000000,410,POST /api/payments,200,OK,Thread-2,text,true,,2048,1024,2,2,http://host/api/payments,380,0,20
+1712500003000,405,POST /api/payments,200,OK,Thread-2,text,true,,2048,1024,2,2,http://host/api/payments,375,0,20
+1712500004000,420,POST /api/payments,500,Error,Thread-2,text,false,,2048,1024,2,2,http://host/api/payments,400,0,20
