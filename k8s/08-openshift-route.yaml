@@ -1,0 +1,40 @@
+# OpenShift Routes — use these instead of the Kubernetes Ingress (07-ingress.yaml)
+# OpenShift's Router (HAProxy) handles TLS and routing natively.
+
+# ── Frontend Route ────────────────────────────────────────────────────────────
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: perfx-frontend
+  namespace: perfx
+  labels:
+    app: perfx-frontend
+spec:
+  host: perfx.apps.your-cluster.example.com    # ← replace with your OpenShift wildcard domain
+  to:
+    kind: Service
+    name: perfx-frontend
+  port:
+    targetPort: http
+  tls:
+    termination: edge               # TLS terminated at the router
+    insecureEdgeTerminationPolicy: Redirect
+---
+# ── Backend API Route ─────────────────────────────────────────────────────────
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: perfx-backend
+  namespace: perfx
+  labels:
+    app: perfx-backend
+spec:
+  host: perfx-api.apps.your-cluster.example.com   # ← replace with your OpenShift wildcard domain
+  to:
+    kind: Service
+    name: perfx-backend
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -1,0 +1,47 @@
+# values-production.yaml
+# Example production overrides — apply on top of values.yaml:
+#   helm upgrade --install perfx ./helm/perfx -f helm/perfx/values-production.yaml
+
+backend:
+  image:
+    repository: your-registry/perfx-backend
+    tag: "1.0.0"           # ← pin to a specific tag, never use "latest" in prod
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 500m
+      memory: 768Mi
+    limits:
+      cpu: "2"
+      memory: 1536Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+frontend:
+  image:
+    repository: your-registry/perfx-frontend
+    tag: "1.0.0"
+  replicaCount: 3
+
+postgres:
+  enabled: true
+  auth:
+    existingSecret: "perfx-postgres-prod-secret"   # Managed externally (Vault, Sealed Secrets)
+    existingSecretKey: "POSTGRES_PASSWORD"
+  persistence:
+    size: 20Gi
+    storageClass: "fast-ssd"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: perfx.mycompany.com
+  tls:
+    enabled: true
+    secretName: perfx-tls
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"   # For large file uploads

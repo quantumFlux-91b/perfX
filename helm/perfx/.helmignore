@@ -1,0 +1,7 @@
+*.txt
+.DS_Store
+.git
+.gitignore
+.helmignore
+*.orig
+*.bak

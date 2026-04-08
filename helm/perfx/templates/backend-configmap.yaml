@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "perfx.fullname" . }}-backend-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "perfx.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ include "perfx.databaseHost" . }}:5432/{{ include "perfx.databaseName" . }}"
+  SPRING_DATASOURCE_USERNAME: {{ include "perfx.databaseUser" . | quote }}
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.PostgreSQLDialect"
+  SERVER_PORT: "8080"

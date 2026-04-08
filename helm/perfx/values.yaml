@@ -1,0 +1,154 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# PerfX Helm Chart — values.yaml
+# Override any value with: helm install perfx ./helm/perfx -f my-values.yaml
+# ══════════════════════════════════════════════════════════════════════════════
+
+global:
+  # Image pull secret name (if your registry is private)
+  imagePullSecrets: []
+  # Namespace override (defaults to Helm release namespace)
+  namespaceOverride: ""
+
+# ── Backend ───────────────────────────────────────────────────────────────────
+backend:
+  image:
+    repository: your-registry/perfx-backend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  # Extra environment variables injected in the pod
+  extraEnv: []
+  # - name: SOME_VAR
+  #   value: "some-value"
+
+  podAnnotations: {}
+  podLabels: {}
+
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+frontend:
+  image:
+    repository: your-registry/perfx-frontend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+  podAnnotations: {}
+  podLabels: {}
+
+# ── Bundled PostgreSQL (simple, no sub-chart) ─────────────────────────────────
+# Set postgresql.enabled=false to use an external PostgreSQL instance.
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+
+  # Credentials — override with a Kubernetes Secret reference in production
+  auth:
+    database: perfx
+    username: perfx
+    # ⚠ Change this before deploying!
+    password: changeme
+    # Alternatively, reference an existing Secret:
+    existingSecret: ""        # Name of an existing Secret
+    existingSecretKey: ""     # Key inside that Secret for the password
+
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""          # Leave empty to use cluster default
+    accessMode: ReadWriteOnce
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+# ── External PostgreSQL (when postgres.enabled=false) ─────────────────────────
+externalDatabase:
+  host: ""
+  port: 5432
+  database: perfx
+  username: perfx
+  password: ""
+  existingSecret: ""
+  existingSecretKey: ""
+
+# ── Bitnami PostgreSQL sub-chart (alternative, set to true to use) ────────────
+postgresql:
+  enabled: false
+  auth:
+    database: perfx
+    username: perfx
+    password: changeme
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: "nginx"          # Set to "" for OpenShift (uses Routes)
+  annotations: {}
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  # Frontend host
+  host: perfx.example.com
+
+  tls:
+    enabled: false
+    secretName: perfx-tls
+
+# ── OpenShift Routes (alternative to Ingress) ─────────────────────────────────
+route:
+  enabled: false              # Set to true on OpenShift
+  host: ""                    # Leave empty to use the cluster's default wildcard
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+# ── Spring Boot Actuator probes ───────────────────────────────────────────────
+probes:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 15
+    periodSeconds: 10

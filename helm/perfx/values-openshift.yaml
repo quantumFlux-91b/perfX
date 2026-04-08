@@ -1,0 +1,34 @@
+# values-openshift.yaml
+# OpenShift-specific overrides — use instead of values-production.yaml:
+#   helm upgrade --install perfx ./helm/perfx -f helm/perfx/values-openshift.yaml
+
+backend:
+  image:
+    repository: your-registry/perfx-backend
+    tag: "1.0.0"
+  replicaCount: 2
+
+frontend:
+  image:
+    repository: your-registry/perfx-frontend
+    tag: "1.0.0"
+  replicaCount: 2
+
+postgres:
+  enabled: true
+  auth:
+    existingSecret: "perfx-postgres-secret"
+    existingSecretKey: "POSTGRES_PASSWORD"
+
+# Disable standard Ingress — OpenShift uses Routes
+ingress:
+  enabled: false
+
+# Enable OpenShift Routes
+route:
+  enabled: true
+  host: perfx.apps.your-cluster.example.com   # OpenShift wildcard domain
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

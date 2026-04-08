@@ -1,0 +1,23 @@
+apiVersion: v2
+name: perfx
+description: PerfX — Performance Test Result Aggregator
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - performance
+  - testing
+  - jmeter
+  - k6
+  - gatling
+home: https://github.com/your-org/perfx
+maintainers:
+  - name: Your Name
+    email: your@email.com
+dependencies:
+  # Optional: use the official Bitnami PostgreSQL sub-chart instead of the
+  # bundled templates. Set postgresql.enabled=true in values.yaml to activate.
+  - name: postgresql
+    version: "15.5.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
