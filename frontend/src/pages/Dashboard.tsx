@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api, { mockUserId } from '../api';
@@ -86,19 +87,20 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {showCreateModal && (
-            <div className="animate-fade-in" style={{position: 'fixed', top:0, left:0, right:0, bottom:0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-               <div className="glass-panel" style={{padding: '3rem', width: '100%', maxWidth: '400px'}}>
+          {showCreateModal && createPortal(
+            <div className="animate-fade-in" style={{position: 'fixed', top:0, left:0, right:0, bottom:0, background: 'rgba(11, 15, 25, 0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}} onClick={() => setShowCreateModal(false)}>
+               <div style={{padding: '3rem', width: '100%', maxWidth: '400px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--border-radius-lg)', boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'}} onClick={e => e.stopPropagation()}>
                  <h3 style={{marginBottom: '2rem', fontSize: '1.5rem'}}>Create New Application</h3>
                  <form onSubmit={handleCreateApp}>
-                    <input autoFocus type="text" placeholder="Application Name" value={newAppName} onChange={e => setNewAppName(e.target.value)} required style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'white', width: '100%', marginBottom: '2rem', outline: 'none' }} />
+                    <input autoFocus type="text" placeholder="Application Name" value={newAppName} onChange={e => setNewAppName(e.target.value)} required style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'white', width: '100%', marginBottom: '2rem', outline: 'none', transition: 'border 0.2s' }} onFocus={(e) => e.target.style.border = '1px solid var(--primary)'} onBlur={(e) => e.target.style.border = '1px solid var(--border)'} />
                     <div style={{display: 'flex', gap: '1rem', justifyContent: 'flex-end'}}>
                        <button type="button" className="btn btn-glass" onClick={() => setShowCreateModal(false)}>Cancel</button>
                        <button type="submit" className="btn btn-primary" style={{borderRadius: '8px'}}>Create</button>
                     </div>
                  </form>
                </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       );
