@@ -1,29 +1,28 @@
 package com.perfx.api.infrastructure.web;
 
-import com.perfx.api.infrastructure.persistence.entity.UserEntity;
-import com.perfx.api.infrastructure.persistence.repo.SpringDataUserRepository;
+import com.perfx.api.application.port.in.LoginUserUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
-    
-    private final SpringDataUserRepository userRepository;
 
-    public AuthController(SpringDataUserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final LoginUserUseCase loginUserUseCase;
+
+    public AuthController(LoginUserUseCase loginUserUseCase) {
+        this.loginUserUseCase = loginUserUseCase;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserEntity> login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        Optional<UserEntity> user = userRepository.findByUsername(username);
-        if (user.isPresent()) {
-            // For MVP we ignore actual password check and just verify user exists
-            return ResponseEntity.ok(user.get());
+    public ResponseEntity<?> login(@RequestParam("username") String username,
+                                   @RequestParam("password") String password) {
+        String userId = loginUserUseCase.login(username, password);
+        if (userId != null) {
+            return ResponseEntity.ok(Map.of("id", userId, "username", username));
         }
         return ResponseEntity.status(401).build();
     }

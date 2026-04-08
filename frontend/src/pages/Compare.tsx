@@ -41,13 +41,17 @@ const Compare: React.FC = () => {
       if (!baseRunId || !targetRunId) return;
       setLoading(true);
       api.get(`/test-runs/compare?baseRunId=${baseRunId}&targetRunId=${targetRunId}`)
-         .then(res => setCompareData(res.data.map((d: any) => ({
-             name: d.requestName,
-             baseRt: Math.round(d.baseAvgResponseTime),
-             targetRt: Math.round(d.targetAvgResponseTime),
-             baseTh: Math.round(d.baseThroughput),
-             targetTh: Math.round(d.targetThroughput)
-         }))))
+          .then(res => setCompareData(res.data.map((d: any) => ({
+              name: d.requestName,
+              baseRt: Math.round(d.baseAvgResponseTime),
+              targetRt: Math.round(d.targetAvgResponseTime),
+              baseTh: Math.round(d.baseThroughput * 100) / 100,
+              targetTh: Math.round(d.targetThroughput * 100) / 100,
+              baseErr: Math.round(d.baseErrorRate * 10000) / 100,
+              targetErr: Math.round(d.targetErrorRate * 10000) / 100,
+              baseP98: Math.round(d.baseP98),
+              targetP98: Math.round(d.targetP98)
+          }))))
          .catch(console.error)
          .finally(() => setLoading(false));
   };
@@ -96,7 +100,7 @@ const Compare: React.FC = () => {
       </div>
 
       {compareData.length > 0 && (
-        <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
+        <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Response Time Comparison (ms)</h3>
                 <div style={{ height: '400px' }}>
@@ -115,6 +119,23 @@ const Compare: React.FC = () => {
             </div>
             
             <div className="glass-panel" style={{ padding: '2rem' }}>
+                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>P98 Response Time (ms)</h3>
+                <div style={{ height: '400px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={compareData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                            <XAxis dataKey="name" stroke="var(--text-muted)" />
+                            <YAxis stroke="var(--text-muted)" />
+                            <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px' }} />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            <Bar dataKey="baseP98" name="Baseline P98" fill="var(--text-muted)" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="targetP98" name="Target P98" fill="var(--warning)" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Throughput Comparison (req/s)</h3>
                 <div style={{ height: '400px' }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -126,6 +147,23 @@ const Compare: React.FC = () => {
                             <Legend wrapperStyle={{ paddingTop: '20px' }} />
                             <Bar dataKey="baseTh" name="Baseline Throughput" fill="var(--text-muted)" radius={[4, 4, 0, 0]} />
                             <Bar dataKey="targetTh" name="Target Throughput" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Error Rate Comparison (%)</h3>
+                <div style={{ height: '400px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={compareData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                            <XAxis dataKey="name" stroke="var(--text-muted)" />
+                            <YAxis stroke="var(--text-muted)" />
+                            <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px' }} />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            <Bar dataKey="baseErr" name="Baseline Error %" fill="var(--text-muted)" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="targetErr" name="Target Error %" fill="var(--error)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
