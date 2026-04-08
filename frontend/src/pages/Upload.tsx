@@ -84,13 +84,34 @@ const Upload: React.FC = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Results File</label>
-            <div style={{ border: '2px dashed var(--border)', borderRadius: '12px', padding: '3rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}>
-                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }}>📄</span>
-                <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} style={{ display: 'block' }} id="file-upload" required />
-                <label htmlFor="file-upload" style={{ cursor: 'pointer', color: 'var(--primary)', fontWeight: 'bold' }}>
-                  {file ? file.name : 'Click to Browse or Drag & Drop'}
-                </label>
-            </div>
+            {/* Hidden native input */}
+            <input
+              type="file"
+              id="file-upload"
+              required
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              style={{ display: 'none' }}
+            />
+            {/* Custom dropzone — clicking anywhere triggers the hidden input */}
+            <label
+              htmlFor="file-upload"
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(59,130,246,0.08)'; }}
+              onDragLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+              onDrop={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; const dropped = e.dataTransfer.files?.[0]; if (dropped) setFile(dropped); }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', border: '2px dashed var(--border)', borderRadius: '12px', padding: '3rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all 0.2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+              <span style={{ fontSize: '2.5rem', lineHeight: 1 }}>📄</span>
+              <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1rem' }}>
+                {file ? file.name : 'Click to Browse or Drag & Drop'}
+              </span>
+              {file && (
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  {(file.size / 1024).toFixed(1)} KB
+                </span>
+              )}
+            </label>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.1rem', marginTop: '1rem', borderRadius: '12px', fontWeight: 600 }}>
