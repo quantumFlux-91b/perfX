@@ -71,25 +71,25 @@ Most testing tools (JMeter, Gatling, K6, Postman) produce their own proprietary 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Frontend (React + TypeScript + Vite)  — port 5173 (dev)        │
-│  Pages: Login · Applications · Dashboard · Upload · Compare      │
+│  Pages: Login · Applications · Dashboard · Upload · Compare     │
 └────────────────────────┬────────────────────────────────────────┘
                          │ REST / JSON
 ┌────────────────────────▼────────────────────────────────────────┐
-│  Backend (Spring Boot 4, Java 21)  — port 8080                   │
-│                                                                   │
-│  ┌─ Infrastructure ──────────────────────────────────────────┐   │
-│  │  Controllers · Parsers (JMeter…) · JPA Entities · MapStruct│  │
-│  └────────────────────────┬──────────────────────────────────┘   │
-│                           │ Port interfaces                        │
-│  ┌─ Application ──────────▼──────────────────────────────────┐   │
-│  │  UploadService · QueryService · ComparisonService           │   │
-│  │  UserService · ApplicationService                           │   │
-│  └────────────────────────┬──────────────────────────────────┘   │
-│                           │                                        │
-│  ┌─ Domain ───────────────▼──────────────────────────────────┐   │
-│  │  TestRun · TestMetric · Application · User · RequestStats   │   │
-│  │  MetricComparison · ParsedMetrics                           │   │
-│  └───────────────────────────────────────────────────────────┘   │
+│  Backend (Spring Boot 4, Java 21)  — port 8080                  │
+│                                                                 │
+│  ┌─ Infrastructure ──────────────────────────────────────────┐  │
+│  │  Controllers · Parsers (JMeter…) · JPA Entities · MapStruct│ │
+│  └────────────────────────┬──────────────────────────────────┘  │
+│                           │ Port interfaces                     │
+│  ┌─ Application ──────────▼──────────────────────────────────┐  │
+│  │  UploadService · QueryService · ComparisonService         │  │
+│  │  UserService · ApplicationService                         │  │
+│  └────────────────────────┬──────────────────────────────────┘  │
+│                           │                                     │
+│  ┌─ Domain ───────────────▼──────────────────────────────────┐  │
+│  │  TestRun · TestMetric · Application · User · RequestStats │  │
+│  │  MetricComparison · ParsedMetrics                         │  │
+│  └───────────────────────────────────────────────────────────┘  │
 └────────────────────────┬────────────────────────────────────────┘
                          │ JDBC
               ┌──────────▼──────────┐
