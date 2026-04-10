@@ -110,6 +110,29 @@
   font-size: 0.85rem;
 }
 
+
+/* ── Tool Hints ── */
+.upload-hint {
+  padding: 0.85rem 1.2rem;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.upload-hint code {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--primary);
+}
+
 /* ── Submit ── */
 .upload-submit {
   padding: 1rem;

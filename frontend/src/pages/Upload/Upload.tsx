@@ -71,11 +71,19 @@ const Upload: React.FC = () => {
               <label className="upload-label">Testing Tool</label>
               <select required value={tool} onChange={e => setTool(e.target.value)} className="upload-select">
                 <option value="JMETER">JMeter (CSV)</option>
+                <option value="GATLING">Gatling (simulation.log)</option>
                 <option value="K6">K6 (JSON) - Soon</option>
-                <option value="GATLING">Gatling - Soon</option>
               </select>
             </div>
           </div>
+
+          {tool === 'GATLING' && (
+            <div className="upload-hint">
+              💡 Upload the <strong>simulation.log</strong> file from your Gatling results directory
+              <br />
+              <code>target/gatling/&lt;simulation&gt;-&lt;timestamp&gt;/simulation.log</code>
+            </div>
+          )}
 
           <div className="upload-field">
             <label className="upload-label">Results File</label>
