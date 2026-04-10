@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import api, { mockUserId } from '../api';
+import api, { mockUserId } from '../../services/api';
+import './Details.css';
 
 export default function Details() {
     const { applicationName, version } = useParams<{ applicationName: string, version: string }>();
@@ -53,31 +54,30 @@ export default function Details() {
     }, [applicationName, version]);
 
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>Loading details...</div>;
+        return <div className="details-loading">Loading details...</div>;
     }
 
     const COLORS = ['#60a5fa', '#4ade80', '#f59e0b', '#f43f5e', '#a78bfa', '#2dd4bf', '#fb923c', '#38bdf8'];
 
     return (
         <div className="animate-fade-in">
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
+            <div className="details-header">
                 <button 
                     onClick={() => navigate(`/applications/${encodeURIComponent(applicationName || '')}`)}
-                    className="btn btn-glass" 
-                    style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }}
+                    className="btn btn-glass details-back-btn" 
                     title="Back to Dashboard"
                 >
-                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>←</span>
+                    <span className="details-back-icon">←</span>
                 </button>
-                <h2 style={{ fontSize: '2.2rem', margin: 0 }}>
-                    Details: {decodeURIComponent(applicationName || '')} <span style={{ color: 'var(--text-muted)', fontSize: '1.5rem', fontWeight: 'normal' }}>(Version {version})</span>
+                <h2 className="details-title">
+                    Details: {decodeURIComponent(applicationName || '')} <span className="details-version-label">(Version {version})</span>
                 </h2>
             </div>
             
-            <div style={{ display: 'grid', gap: '3rem' }}>
-                <div className="glass-panel" style={{ padding: '2rem' }}>
-                    <h3 style={{ marginBottom: '2rem', color: 'var(--text)', fontWeight: 500, fontSize: '1.4rem' }}>Throughput over time (req/s)</h3>
-                    <div style={{ height: '350px' }}>
+            <div className="details-charts-grid">
+                <div className="glass-panel details-chart-panel">
+                    <h3 className="details-chart-heading">Throughput over time (req/s)</h3>
+                    <div className="details-chart-container">
                         {metrics && metrics.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={metrics} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
@@ -92,14 +92,14 @@ export default function Details() {
                             </LineChart>
                         </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No data available to display in graph.</div>
+                            <div className="details-no-data">No data available to display in graph.</div>
                         )}
                     </div>
                 </div>
 
-                <div className="glass-panel" style={{ padding: '2rem' }}>
-                    <h3 style={{ marginBottom: '2rem', color: 'var(--text)', fontWeight: 500, fontSize: '1.4rem' }}>Average Response Time over time (ms)</h3>
-                    <div style={{ height: '350px' }}>
+                <div className="glass-panel details-chart-panel">
+                    <h3 className="details-chart-heading">Average Response Time over time (ms)</h3>
+                    <div className="details-chart-container">
                         {metrics && metrics.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={metrics} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
@@ -114,14 +114,14 @@ export default function Details() {
                             </LineChart>
                         </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No data available to display in graph.</div>
+                            <div className="details-no-data">No data available to display in graph.</div>
                         )}
                     </div>
                 </div>
                 
-                <div className="glass-panel" style={{ padding: '2rem' }}>
-                    <h3 style={{ marginBottom: '2rem', color: 'var(--text)', fontWeight: 500, fontSize: '1.4rem' }}>98th Percentile over time (ms)</h3>
-                    <div style={{ height: '350px' }}>
+                <div className="glass-panel details-chart-panel">
+                    <h3 className="details-chart-heading">98th Percentile over time (ms)</h3>
+                    <div className="details-chart-container">
                         {metrics && metrics.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={metrics} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
@@ -136,14 +136,14 @@ export default function Details() {
                             </LineChart>
                         </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No data available to display in graph.</div>
+                            <div className="details-no-data">No data available to display in graph.</div>
                         )}
                     </div>
                 </div>
 
-                <div className="glass-panel" style={{ padding: '2rem' }}>
-                    <h3 style={{ marginBottom: '2rem', color: 'var(--text)', fontWeight: 500, fontSize: '1.4rem' }}>Error Rate over time (%)</h3>
-                    <div style={{ height: '350px' }}>
+                <div className="glass-panel details-chart-panel">
+                    <h3 className="details-chart-heading">Error Rate over time (%)</h3>
+                    <div className="details-chart-container">
                         {metrics && metrics.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={metrics} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
@@ -158,7 +158,7 @@ export default function Details() {
                             </LineChart>
                         </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No data available to display in graph.</div>
+                            <div className="details-no-data">No data available to display in graph.</div>
                         )}
                     </div>
                 </div>

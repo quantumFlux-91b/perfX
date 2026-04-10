@@ -1,0 +1,56 @@
+/* ── Navigation Bar ── */
+.app-nav {
+  display: flex;
+  padding: 1rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px;
+  border-radius: 50px;
+}
+
+.app-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-nav-logo {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: var(--shadow-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-nav-logo-text {
+  color: white;
+  font-weight: bold;
+}
+
+.app-nav-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-nav-links {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.app-nav-link {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.app-nav-logout {
+  color: var(--text-muted);
+}

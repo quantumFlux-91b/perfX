@@ -1,0 +1,287 @@
+/* ── App Selector View ── */
+.app-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4rem;
+}
+
+.app-selector-title {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.app-selector-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.app-card {
+  padding: 2.5rem;
+  width: 300px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid var(--border);
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.app-card-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.app-card-name {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.app-card--new {
+  padding: 2.5rem;
+  width: 300px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px dashed var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.app-card--new:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-glow);
+}
+
+.app-card--new .app-card-icon {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.app-card--new .app-card-name {
+  color: var(--primary);
+}
+
+/* ── Create App Modal ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 15, 25, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  padding: 3rem;
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+}
+
+.modal-input {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  width: 100%;
+  margin-bottom: 2rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.modal-input:focus {
+  border: 1px solid var(--primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-create-btn {
+  border-radius: 8px;
+}
+
+/* ── Dashboard Header ── */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.dashboard-title {
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.dashboard-upload-link {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+}
+
+/* ── Charts Grid ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.chart-panel {
+  padding: 2rem;
+}
+
+.chart-heading {
+  margin-bottom: 1.5rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+
+.chart-container {
+  height: 300px;
+}
+
+/* ── Data Table ── */
+.table-heading {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.table-wrapper {
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table thead tr {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.data-table th {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.data-table td {
+  padding: 1.25rem 1.5rem;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.data-table .td-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+}
+
+.td-version {
+  font-weight: 500;
+}
+
+.td-date {
+  color: var(--text-muted);
+}
+
+.td-rt {
+  color: var(--success);
+}
+
+.td-throughput {
+  color: var(--accent);
+}
+
+.td-error {
+  color: var(--error);
+}
+
+/* ── Trend Icons ── */
+.trend-icon {
+  margin-left: 0.5rem;
+  font-weight: bold;
+}
+
+.trend-icon--neutral {
+  color: var(--text-muted);
+}
+
+.trend-icon--positive {
+  color: var(--success);
+}
+
+.trend-icon--negative {
+  color: var(--error);
+}
+
+/* ── Action Buttons ── */
+.action-btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 20px;
+}
+
+.action-btn--compare {
+  margin-left: 0.5rem;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.pagination-info {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}

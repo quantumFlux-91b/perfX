@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Upload from './pages/Upload';
-import Compare from './pages/Compare';
-import Details from './pages/Details';
-import Login from './pages/Login';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar/Navbar';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Upload from './pages/Upload/Upload';
+import Compare from './pages/Compare/Compare';
+import Details from './pages/Details/Details';
+import Login from './pages/Login/Login';
 
 function AppContent() {
   const location = useLocation();
@@ -12,22 +12,9 @@ function AppContent() {
 
   return (
     <>
-      {showNav && (
-        <nav className="glass-panel" style={{ display: 'flex', padding: '1rem 2rem', alignItems: 'center', justifyContent: 'space-between', margin: '20px', borderRadius: '50px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <div style={{ width: '36px', height: '36px', background: 'var(--primary)', borderRadius: '50%', boxShadow: 'var(--shadow-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{color: 'white', fontWeight: 'bold'}}>PX</span>
-            </div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, letterSpacing: '1px', background: 'linear-gradient(135deg, var(--primary), var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PerfX</h1>
-          </div>
-          <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
-             <Link to="/applications" style={{ color: 'var(--text-main)', fontWeight: 600 }}>Applications</Link>
-             <Link to="/" className="btn btn-glass" style={{ color: 'var(--text-muted)' }}>Logout</Link>
-          </div>
-        </nav>
-      )}
+      {showNav && <Navbar />}
       
-      <main className="container animate-fade-in" style={{ padding: '2rem 0' }}>
+      <main className="container animate-fade-in app-main">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/applications" element={<Dashboard />} />

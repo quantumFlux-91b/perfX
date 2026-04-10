@@ -1,0 +1,92 @@
+/* ── Header ── */
+.compare-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.compare-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.compare-back-btn {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.compare-title {
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+/* ── Filter Bar ── */
+.compare-filters {
+  padding: 2rem;
+  margin-bottom: 3rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.compare-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.compare-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+}
+
+.compare-select {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-main);
+}
+
+.compare-select--disabled {
+  opacity: 0.5;
+}
+
+.compare-select option {
+  color: black;
+}
+
+.compare-submit {
+  padding: 1rem 2rem;
+  border-radius: 12px;
+}
+
+/* ── Charts Grid ── */
+.compare-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.compare-chart-panel {
+  padding: 2rem;
+}
+
+.compare-chart-heading {
+  margin-bottom: 2rem;
+  color: var(--text-muted);
+}
+
+.compare-chart-container {
+  height: 400px;
+}

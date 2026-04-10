@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import api, { mockUserId } from '../api';
+import api, { mockUserId } from '../../services/api';
+import './Compare.css';
 
 const Compare: React.FC = () => {
   const [applications, setApplications] = useState<any[]>([]);
@@ -58,52 +59,51 @@ const Compare: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div className="compare-header">
+        <div className="compare-header-left">
           <button 
-            className="btn btn-glass" 
-            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer' }}
+            className="btn btn-glass compare-back-btn" 
             onClick={() => navigate(selectedApp ? `/applications/${encodeURIComponent(selectedApp)}` : '/applications')}
             title="Back to Application"
           >
             ←
           </button>
-          <h2 style={{ fontSize: '2.2rem', margin: 0 }}>Compare Runs</h2>
+          <h2 className="compare-title">Compare Runs</h2>
         </div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '3rem', display: 'flex', gap: '2rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Application Context</label>
-            <select value={selectedApp} onChange={e => {setSelectedApp(e.target.value); setBaseRunId(''); setTargetRunId('');}} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'var(--text-main)' }}>
-                <option value="" style={{color: 'black'}}>-- Select App --</option>
-                {applications.map(a => <option key={a.id} value={a.name} style={{color: 'black'}}>{a.name}</option>)}
+      <div className="glass-panel compare-filters">
+        <div className="compare-field">
+            <label className="compare-label">Application Context</label>
+            <select value={selectedApp} onChange={e => {setSelectedApp(e.target.value); setBaseRunId(''); setTargetRunId('');}} className="compare-select">
+                <option value="">-- Select App --</option>
+                {applications.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
             </select>
         </div>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Baseline Run</label>
-            <select value={baseRunId} onChange={e => setBaseRunId(e.target.value)} disabled={!selectedApp} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'var(--text-main)', opacity: selectedApp ? 1 : 0.5 }}>
-                <option value="" style={{color: 'black'}}>-- Select Baseline --</option>
-                {runs.map(r => <option key={r.id} value={r.id} style={{color: 'black'}}>{r.applicationVersion} ({new Date(r.uploadTimestamp).toISOString().split('T')[0]})</option>)}
+        <div className="compare-field">
+            <label className="compare-label">Baseline Run</label>
+            <select value={baseRunId} onChange={e => setBaseRunId(e.target.value)} disabled={!selectedApp} className={`compare-select${!selectedApp ? ' compare-select--disabled' : ''}`}>
+                <option value="">-- Select Baseline --</option>
+                {runs.map(r => <option key={r.id} value={r.id}>{r.applicationVersion} ({new Date(r.uploadTimestamp).toISOString().split('T')[0]})</option>)}
             </select>
         </div>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Target Run</label>
-            <select value={targetRunId} onChange={e => setTargetRunId(e.target.value)} disabled={!selectedApp} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'var(--text-main)', opacity: selectedApp ? 1 : 0.5 }}>
-                <option value="" style={{color: 'black'}}>-- Select Target --</option>
-                {runs.map(r => <option key={r.id} value={r.id} style={{color: 'black'}}>{r.applicationVersion} ({new Date(r.uploadTimestamp).toISOString().split('T')[0]})</option>)}
+        <div className="compare-field">
+            <label className="compare-label">Target Run</label>
+            <select value={targetRunId} onChange={e => setTargetRunId(e.target.value)} disabled={!selectedApp} className={`compare-select${!selectedApp ? ' compare-select--disabled' : ''}`}>
+                <option value="">-- Select Target --</option>
+                {runs.map(r => <option key={r.id} value={r.id}>{r.applicationVersion} ({new Date(r.uploadTimestamp).toISOString().split('T')[0]})</option>)}
             </select>
         </div>
-        <button className="btn btn-primary" disabled={!baseRunId || !targetRunId || loading} style={{ padding: '1rem 2rem', borderRadius: '12px' }} onClick={handleCompare}>
+        <button className="btn btn-primary compare-submit" disabled={!baseRunId || !targetRunId || loading} onClick={handleCompare}>
             {loading ? 'Comparing...' : 'Compare'}
         </button>
       </div>
 
       {compareData.length > 0 && (
-        <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Response Time Comparison (ms)</h3>
-                <div style={{ height: '400px' }}>
+        <div className="animate-fade-in compare-charts">
+            <div className="glass-panel compare-chart-panel">
+                <h3 className="compare-chart-heading">Response Time Comparison (ms)</h3>
+                <div className="compare-chart-container">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={compareData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
@@ -118,9 +118,9 @@ const Compare: React.FC = () => {
                 </div>
             </div>
             
-            <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>P98 Response Time (ms)</h3>
-                <div style={{ height: '400px' }}>
+            <div className="glass-panel compare-chart-panel">
+                <h3 className="compare-chart-heading">P98 Response Time (ms)</h3>
+                <div className="compare-chart-container">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={compareData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
@@ -135,9 +135,9 @@ const Compare: React.FC = () => {
                 </div>
             </div>
 
-            <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Throughput Comparison (req/s)</h3>
-                <div style={{ height: '400px' }}>
+            <div className="glass-panel compare-chart-panel">
+                <h3 className="compare-chart-heading">Throughput Comparison (req/s)</h3>
+                <div className="compare-chart-container">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={compareData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
@@ -152,9 +152,9 @@ const Compare: React.FC = () => {
                 </div>
             </div>
 
-            <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h3 style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Error Rate Comparison (%)</h3>
-                <div style={{ height: '400px' }}>
+            <div className="glass-panel compare-chart-panel">
+                <h3 className="compare-chart-heading">Error Rate Comparison (%)</h3>
+                <div className="compare-chart-container">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={compareData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />

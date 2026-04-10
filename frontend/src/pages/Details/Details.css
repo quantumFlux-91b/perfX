@@ -1,0 +1,71 @@
+/* ── Loading State ── */
+.details-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+/* ── Header ── */
+.details-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  gap: 1rem;
+}
+
+.details-back-btn {
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.details-back-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.details-title {
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.details-version-label {
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  font-weight: normal;
+}
+
+/* ── Charts ── */
+.details-charts-grid {
+  display: grid;
+  gap: 3rem;
+}
+
+.details-chart-panel {
+  padding: 2rem;
+}
+
+.details-chart-heading {
+  margin-bottom: 2rem;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+
+.details-chart-container {
+  height: 350px;
+}
+
+/* ── No Data Placeholder ── */
+.details-no-data {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
