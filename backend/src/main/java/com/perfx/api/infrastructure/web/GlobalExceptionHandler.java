@@ -2,6 +2,7 @@ package com.perfx.api.infrastructure.web;
 
 import com.perfx.api.domain.exception.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ParseProcessingException.class)
     public ResponseEntity<Map<String, Object>> handleParseError(ParseProcessingException ex) {
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        return buildResponse(HttpStatusCode.valueOf(422), ex.getMessage());
     }
 
     @ExceptionHandler(DuplicateApplicationException.class)
@@ -35,10 +36,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatusCode status, String message) {
         return ResponseEntity.status(status).body(Map.of(
                 "status", status.value(),
-                "error", status.getReasonPhrase(),
+                "error", HttpStatus.resolve(status.value()) != null
+                        ? HttpStatus.resolve(status.value()).getReasonPhrase()
+                        : "Unknown",
                 "message", message,
                 "timestamp", Instant.now().toString()
         ));

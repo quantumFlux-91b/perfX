@@ -31,7 +31,12 @@ public class JMeterCsvParser implements TestResultParser {
         Map<String, RequestStats> timeSeriesStatsMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())) {
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
+                     .setHeader()
+                     .setSkipHeaderRecord(true)
+                     .setIgnoreHeaderCase(true)
+                     .setTrim(true)
+                     .build())) {
 
             long minTimeStamp = Long.MAX_VALUE;
             long maxTimeStamp = Long.MIN_VALUE;
