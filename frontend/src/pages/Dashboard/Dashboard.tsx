@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import api, { mockUserId } from '../../services/api';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const { applicationName } = useParams<{ applicationName: string }>();
   const navigate = useNavigate();
   const [applications, setApplications] = useState<any[]>([]);
@@ -16,9 +18,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!applicationName) {
-      api.get(`/applications?userId=${mockUserId}`).then(res => setApplications(res.data)).catch(console.error);
+      if (user?.id) {
+        api.get(`/applications?userId=${user.id}`).then(res => setApplications(res.data)).catch(console.error);
+      }
     } else {
-      api.get(`/test-runs?userId=${mockUserId}&applicationName=${encodeURIComponent(applicationName)}`)
+      if (user?.id) {
+        api.get(`/test-runs?userId=${user.id}&applicationName=${encodeURIComponent(applicationName)}`)
          .then(res => {
              const sorted = res.data.sort((a: any, b: any) => new Date(a.uploadTimestamp).getTime() - new Date(b.uploadTimestamp).getTime());
              const processed = sorted.map((r: any) => {
@@ -38,14 +43,15 @@ const Dashboard: React.FC = () => {
              setRuns(processed);
              setCurrentPage(1);
          })
-         .catch(console.error);
+          .catch(console.error);
+      }
     }
-  }, [applicationName]);
+  }, [applicationName, user]);
 
   const handleCreateApp = (e: React.FormEvent) => {
       e.preventDefault();
       if (!newAppName.trim()) return;
-      api.post(`/applications?userId=${mockUserId}&name=${encodeURIComponent(newAppName)}`)
+      api.post(`/applications?userId=${user?.id}&name=${encodeURIComponent(newAppName)}`)
          .then(() => {
              setShowCreateModal(false);
              setNewAppName('');

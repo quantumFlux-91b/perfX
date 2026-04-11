@@ -5,6 +5,7 @@ import Upload from './pages/Upload/Upload';
 import Compare from './pages/Compare/Compare';
 import Details from './pages/Details/Details';
 import Login from './pages/Login/Login';
+import { AuthProvider } from './context/AuthContext';
 
 function AppContent() {
   const location = useLocation();
@@ -30,9 +31,11 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

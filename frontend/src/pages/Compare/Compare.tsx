@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import api, { mockUserId } from '../../services/api';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './Compare.css';
 
 const Compare: React.FC = () => {
+  const { user } = useAuth();
   const [applications, setApplications] = useState<any[]>([]);
   const [selectedApp, setSelectedApp] = useState('');
   const [runs, setRuns] = useState<any[]>([]);
@@ -25,12 +27,14 @@ const Compare: React.FC = () => {
   }, [location]);
 
   useEffect(() => {
-      api.get(`/applications?userId=${mockUserId}`).then(res => setApplications(res.data)).catch(console.error);
+      if (user?.id) {
+          api.get(`/applications?userId=${user.id}`).then(res => setApplications(res.data)).catch(console.error);
+      }
   }, []);
 
   useEffect(() => {
-      if (selectedApp) {
-          api.get(`/test-runs?userId=${mockUserId}&applicationName=${encodeURIComponent(selectedApp)}`)
+      if (selectedApp && user?.id) {
+          api.get(`/test-runs?userId=${user.id}&applicationName=${encodeURIComponent(selectedApp)}`)
              .then(res => setRuns(res.data.reverse()))
              .catch(console.error);
       } else {

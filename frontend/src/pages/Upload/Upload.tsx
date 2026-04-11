@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import api, { mockUserId } from '../../services/api';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './Upload.css';
 
 const Upload: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [file, setFile] = useState<File | null>(null);
@@ -25,7 +27,7 @@ const Upload: React.FC = () => {
     if (!file || !appName || !version) return;
 
     const formData = new FormData();
-    formData.append('userId', mockUserId);
+    formData.append('userId', user?.id || '');
     formData.append('applicationName', appName);
     formData.append('applicationVersion', version);
     formData.append('tool', tool);

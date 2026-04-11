@@ -16,9 +16,9 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByEmail("admin@example.com").isEmpty()) {
             User admin = User.builder()
-                    .username("admin")
+                    .email("admin@example.com")
                     .passwordHash("hashedadmin")
                     .build();
             userRepository.save(admin);

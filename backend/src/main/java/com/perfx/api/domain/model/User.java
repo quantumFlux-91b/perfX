@@ -9,6 +9,9 @@ import java.util.UUID;
 @Builder
 public class User {
     private UUID id;
-    private String username;
+    private String email;
     private String passwordHash;
+    private String firstName;
+    private String lastName;
+    private String profilePictureUrl;
 }

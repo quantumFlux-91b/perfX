@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import api, { mockUserId } from '../../services/api';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './Details.css';
 
 export default function Details() {
+    const { user } = useAuth();
     const { applicationName, version } = useParams<{ applicationName: string, version: string }>();
     const navigate = useNavigate();
     const [metrics, setMetrics] = useState<any[]>([]);
@@ -13,9 +15,9 @@ export default function Details() {
     const [requestNames, setRequestNames] = useState<string[]>([]);
 
     useEffect(() => {
-        if (applicationName && version) {
+        if (applicationName && version && user?.id) {
             setLoading(true);
-            api.get(`/test-runs?userId=${mockUserId}&applicationName=${encodeURIComponent(applicationName)}`)
+            api.get(`/test-runs?userId=${user.id}&applicationName=${encodeURIComponent(applicationName)}`)
                 .then(res => {
                     const runs = res.data;
                     const run = runs.find((r: any) => String(r.applicationVersion) === String(version));

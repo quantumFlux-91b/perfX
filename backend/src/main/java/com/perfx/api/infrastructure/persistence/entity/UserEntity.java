@@ -16,8 +16,12 @@ public class UserEntity {
     private UUID id;
     
     @Column(unique = true, nullable = false)
-    private String username;
+    private String email;
     
     @Column(nullable = false)
     private String passwordHash;
+
+    private String firstName;
+    private String lastName;
+    private String profilePictureUrl;
 }
