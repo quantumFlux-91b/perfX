@@ -10,4 +10,5 @@ public interface ApplicationRepository {
     Application save(Application application);
     List<Application> findByUserId(UUID userId);
     Optional<Application> findByUserIdAndName(UUID userId, String name);
+    Optional<Application> findById(UUID id);
 }

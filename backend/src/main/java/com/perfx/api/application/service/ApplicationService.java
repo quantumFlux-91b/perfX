@@ -38,4 +38,12 @@ public class ApplicationService implements ManageApplicationUseCase {
     public List<Application> getApplications(UUID userId) {
         return applicationRepository.findByUserId(userId);
     }
+
+    @Override
+    public Application toggleFavorite(UUID applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+        application.setFavorite(!application.isFavorite());
+        return applicationRepository.save(application);
+    }
 }

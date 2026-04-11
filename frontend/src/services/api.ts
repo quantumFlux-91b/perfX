@@ -21,4 +21,9 @@ export const updateUserProfile = async (id: string, profileData: any) => {
     return response.data;
 };
 
+export const toggleFavoriteApp = async (id: string) => {
+    const response = await api.patch(`/applications/${id}/favorite`);
+    return response.data;
+};
+
 export default api;

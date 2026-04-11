@@ -38,4 +38,9 @@ public class ApplicationPersistenceAdapter implements ApplicationRepository {
     public Optional<Application> findByUserIdAndName(UUID userId, String name) {
         return repository.findByUserIdAndName(userId, name).map(mapper::toDomain);
     }
+
+    @Override
+    public Optional<Application> findById(UUID id) {
+        return repository.findById(id).map(mapper::toDomain);
+    }
 }

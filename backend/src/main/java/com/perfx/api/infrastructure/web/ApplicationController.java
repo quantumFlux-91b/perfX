@@ -30,4 +30,9 @@ public class ApplicationController {
         Application app = manageApplicationUseCase.createApplication(userId, name);
         return ResponseEntity.ok(app);
     }
+
+    @PatchMapping("/{id}/favorite")
+    public ResponseEntity<Application> toggleFavorite(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(manageApplicationUseCase.toggleFavorite(id));
+    }
 }

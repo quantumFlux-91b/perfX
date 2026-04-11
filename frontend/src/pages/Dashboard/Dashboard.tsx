@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import api from '../../services/api';
+import api, { toggleFavoriteApp } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import './Dashboard.css';
 
@@ -15,6 +15,8 @@ const Dashboard: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newAppName, setNewAppName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!applicationName) {
@@ -60,17 +62,94 @@ const Dashboard: React.FC = () => {
          .catch(_err => alert("Failed to create app. Name might already exist."));
   };
 
+  const handleToggleFavorite = (e: React.MouseEvent, appId: string) => {
+      e.stopPropagation();
+      setApplications(prev => prev.map(app => app.id === appId ? { ...app, favorite: !app.favorite } : app));
+      toggleFavoriteApp(appId).catch(console.error);
+  };
+
+  const displayedApplications = applications.filter(app => {
+      const matchFav = showFavoritesOnly ? app.favorite : true;
+      const matchSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchFav && matchSearch;
+  });
+
   if (!applicationName) {
       return (
         <div className="animate-fade-in app-selector">
-          <h2 className="app-selector-title">Select an Application</h2>
+          <div className="app-selector-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem', width: '100%' }}>
+             <h2 className="app-selector-title" style={{ marginBottom: 0 }}>Select an Application</h2>
+             
+             <div className="app-filters" style={{ 
+                 display: 'flex', 
+                 alignItems: 'center', 
+                 gap: '1rem', 
+                 background: 'rgba(255, 255, 255, 0.05)', 
+                 padding: '0.8rem 1.5rem', 
+                 borderRadius: '30px', 
+                 border: '1px solid var(--border)', 
+                 width: '100%', 
+                 maxWidth: '450px',
+                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+             }}>
+                 <span style={{ color: 'var(--text-muted)' }}>🔍</span>
+                 <input 
+                     type="text" 
+                     placeholder="Search application by name..." 
+                     value={searchQuery}
+                     onChange={e => setSearchQuery(e.target.value)} 
+                     style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '1rem' }}
+                 />
+                 
+                 <div style={{ width: '1px', height: '24px', background: 'var(--border)' }}></div>
+
+                 <div 
+                     onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                     style={{ 
+                         cursor: 'pointer', 
+                         fontSize: '1.4rem', 
+                         color: showFavoritesOnly ? '#fbbf24' : 'var(--text-muted)',
+                         display: 'flex', 
+                         alignItems: 'center', 
+                         justifyContent: 'center',
+                         transition: 'color 0.2s, transform 0.2s',
+                         transform: showFavoritesOnly ? 'scale(1.1)' : 'scale(1)'
+                     }}
+                     title={showFavoritesOnly ? "Show All Applications" : "Show Favorites Only"}
+                 >
+                     {showFavoritesOnly ? '★' : '☆'}
+                 </div>
+             </div>
+          </div>
+          
+          {displayedApplications.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                  No applications found matching your filters.
+              </div>
+          )}
+
           <div className="app-selector-grid">
-            {applications.map(app => (
+            {displayedApplications.map(app => (
               <div 
                 key={app.id} 
                 className="glass-panel app-card" 
                 onClick={() => navigate(`/applications/${encodeURIComponent(app.name)}`)}
+                style={{ position: 'relative' }}
               >
+                <div 
+                    className="favorite-star" 
+                    onClick={(e) => handleToggleFavorite(e, app.id)}
+                    style={{ 
+                        position: 'absolute', top: '10px', right: '10px', 
+                        cursor: 'pointer', fontSize: '1.2rem',
+                        color: app.favorite ? '#fbbf24' : 'var(--text-muted)',
+                        transition: 'color 0.2s, transform 0.2s',
+                        transform: app.favorite ? 'scale(1.1)' : 'scale(1)'
+                    }}
+                    title={app.favorite ? 'Remove from favorites' : 'Mark as favorite'}
+                >
+                    {app.favorite ? '★' : '☆'}
+                </div>
                 <div className="app-card-icon">
                   📦
                 </div>

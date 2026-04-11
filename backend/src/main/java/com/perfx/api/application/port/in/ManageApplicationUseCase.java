@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface ManageApplicationUseCase {
     Application createApplication(UUID userId, String name);
     List<Application> getApplications(UUID userId);
+    Application toggleFavorite(UUID applicationId);
 }

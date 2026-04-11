@@ -20,4 +20,7 @@ public class ApplicationEntity {
     
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean favorite = false;
 }
