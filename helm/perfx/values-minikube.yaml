@@ -1,0 +1,68 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# PerfX — Minikube overrides
+# Usage: helm upgrade perfx ./helm/perfx -f ./helm/perfx/values-minikube.yaml
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Backend ───────────────────────────────────────────────────────────────────
+backend:
+  image:
+    repository: perfx-backend
+    tag: "1.0.0"
+    pullPolicy: Never          # Use the local image built inside minikube
+  replicaCount: 1              # Single replica is fine for local dev
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      cpu: "1"
+      memory: 768Mi
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+frontend:
+  image:
+    repository: perfx-frontend
+    tag: "1.0.0"
+    pullPolicy: Never
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# ── PostgreSQL ────────────────────────────────────────────────────────────────
+postgres:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+# ── Bitnami sub-chart disabled ────────────────────────────────────────────────
+postgresql:
+  enabled: false
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: nginx
+  host: perfx.local
+
+# ── Probes (more forgiving for slower local machines) ─────────────────────────
+probes:
+  liveness:
+    initialDelaySeconds: 45
+    periodSeconds: 15
+    failureThreshold: 5
+  readiness:
+    initialDelaySeconds: 20
+    periodSeconds: 10

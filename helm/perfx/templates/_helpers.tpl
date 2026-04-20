@@ -123,12 +123,12 @@ Name of the Secret that holds POSTGRES_PASSWORD.
 Key inside the Secret for the password.
 */}}
 {{- define "perfx.databaseSecretKey" -}}
-{{- if .Values.postgres.auth.existingSecretKey }}
-{{- .Values.postgres.auth.existingSecretKey }}
-{{- else }}
+{{- if .Values.postgres.auth.existingSecretKey -}}
+{{- .Values.postgres.auth.existingSecretKey -}}
+{{- else -}}
 POSTGRES_PASSWORD
-{{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Image pull secrets block.
