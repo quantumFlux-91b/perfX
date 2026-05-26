@@ -30,47 +30,111 @@ public class JMeterCsvParser implements TestResultParser {
         Map<String, RequestStats> aggregateStatsMap = new HashMap<>();
         Map<String, RequestStats> timeSeriesStatsMap = new HashMap<>();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            char delimiter = ',';
+            if (reader.markSupported()) {
+                reader.mark(8192);
+                String firstLine = reader.readLine();
+                if (firstLine != null) {
+                    int commaCount = 0;
+                    int semicolonCount = 0;
+                    for (int i = 0; i < firstLine.length(); i++) {
+                        char c = firstLine.charAt(i);
+                        if (c == ',') commaCount++;
+                        else if (c == ';') semicolonCount++;
+                    }
+                    if (semicolonCount > commaCount) {
+                        delimiter = ';';
+                    }
+                }
+                reader.reset();
+            }
+
+            try (BufferedReader autoCloseReader = reader;
+                 CSVParser csvParser = new CSVParser(autoCloseReader, CSVFormat.DEFAULT.builder()
+                     .setDelimiter(delimiter)
                      .setHeader()
                      .setSkipHeaderRecord(true)
                      .setIgnoreHeaderCase(true)
                      .setTrim(true)
+                     .setAllowMissingColumnNames(true)
+                     .setIgnoreEmptyLines(true)
                      .build())) {
+
 
             long minTimeStamp = Long.MAX_VALUE;
             long maxTimeStamp = Long.MIN_VALUE;
 
             for (CSVRecord record : csvParser) {
-                String label = extractLabel(record);
-                if (label == null || label.trim().isEmpty()) {
-                    continue;
+                try {
+                    String label = extractLabel(record);
+                    if (label == null || label.trim().isEmpty() || "Unknown".equals(label)) {
+                        continue;
+                    }
+
+                    long timeStamp = 0;
+                    if (record.isSet("timeStamp")) {
+                        timeStamp = Long.parseLong(record.get("timeStamp"));
+                    } else if (record.isSet("timestamp")) {
+                        timeStamp = Long.parseLong(record.get("timestamp"));
+                    }
+
+                    double elapsed = 0;
+                    if (record.isSet("elapsed")) {
+                        elapsed = Double.parseDouble(record.get("elapsed"));
+                    }
+
+                    String responseCode = "200";
+                    if (record.isSet("responseCode")) {
+                        responseCode = record.get("responseCode");
+                    }
+
+                    boolean success = true;
+                    if (record.isSet("success")) {
+                        success = determineSuccess(record);
+                    } else {
+                        if (responseCode != null && responseCode.matches("\\d+")) {
+                            if (Integer.parseInt(responseCode) >= 400) {
+                                success = false;
+                            }
+                        }
+                    }
+
+                    if (timeStamp > 0) {
+                        minTimeStamp = Math.min(minTimeStamp, timeStamp);
+                        maxTimeStamp = Math.max(maxTimeStamp, timeStamp);
+                    }
+
+                    aggregateStatsMap.computeIfAbsent(label, k -> new RequestStats())
+                            .addResponse(elapsed, success, responseCode);
+
+                    int minuteOffset = 0;
+                    if (timeStamp > 0 && minTimeStamp != Long.MAX_VALUE) {
+                        minuteOffset = (int) ((timeStamp - minTimeStamp) / 60000);
+                    }
+                    String tsKey = minuteOffset + "|" + label;
+                    timeSeriesStatsMap.computeIfAbsent(tsKey, k -> new RequestStats())
+                            .addResponse(elapsed, success, responseCode);
+                } catch (Exception e) {
+                    System.err.println("Skipping malformed CSV record due to error: " + e.getMessage());
                 }
+            }
 
-                long timeStamp = Long.parseLong(record.get("timeStamp"));
-                double elapsed = Double.parseDouble(record.get("elapsed"));
-                boolean success = determineSuccess(record);
-                String responseCode = record.get("responseCode");
-
-                minTimeStamp = Math.min(minTimeStamp, timeStamp);
-                maxTimeStamp = Math.max(maxTimeStamp, timeStamp);
-
-                aggregateStatsMap.computeIfAbsent(label, k -> new RequestStats())
-                        .addResponse(elapsed, success, responseCode);
-
-                int minuteOffset = (int) ((timeStamp - minTimeStamp) / 60000);
-                String tsKey = minuteOffset + "|" + label;
-                timeSeriesStatsMap.computeIfAbsent(tsKey, k -> new RequestStats())
-                        .addResponse(elapsed, success, responseCode);
+            if (aggregateStatsMap.isEmpty()) {
+                throw new ParseProcessingException("No valid JMeter CSV records found in the file", null);
             }
 
             double durationInSeconds = Math.max((maxTimeStamp - minTimeStamp) / 1000.0, 1.0);
+            if (minTimeStamp == Long.MAX_VALUE) {
+                durationInSeconds = 1.0;
+            }
 
             List<TestMetric> aggregateMetrics = buildAggregateMetrics(aggregateStatsMap, durationInSeconds);
             List<TestRunTimeSeriesMetric> timeSeriesMetrics = buildTimeSeriesMetrics(timeSeriesStatsMap);
 
             return new ParsedMetrics(aggregateMetrics, timeSeriesMetrics);
-
+            }
         } catch (ParseProcessingException e) {
             throw e;
         } catch (Exception e) {
@@ -85,8 +149,16 @@ public class JMeterCsvParser implements TestResultParser {
     }
 
     private boolean determineSuccess(CSVRecord record) {
-        boolean success = Boolean.parseBoolean(record.get("success"));
-        String responseCode = record.get("responseCode");
+        boolean success = true;
+        if (record.isSet("success")) {
+            success = Boolean.parseBoolean(record.get("success"));
+        }
+        
+        String responseCode = null;
+        if (record.isSet("responseCode")) {
+            responseCode = record.get("responseCode");
+        }
+        
         if (responseCode != null && responseCode.matches("\\d+")) {
             if (Integer.parseInt(responseCode) >= 400) {
                 return false;
@@ -94,6 +166,7 @@ public class JMeterCsvParser implements TestResultParser {
         }
         return success;
     }
+
 
     private List<TestMetric> buildAggregateMetrics(Map<String, RequestStats> statsMap, double durationInSeconds) {
         List<TestMetric> metrics = new ArrayList<>();

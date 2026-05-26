@@ -125,7 +125,26 @@ class JMeterCsvParserTest {
         assertEquals(2.0 / 3.0, metric.getErrorRate(), 0.01);
     }
 
+    @Test
+    @DisplayName("parse() correctly handles semicolon-delimited JTL/CSV files")
+    void parseSemicolonDelimitedCsv() {
+        String csv = """
+                timeStamp;elapsed;label;responseCode;responseMessage;threadName;dataType;success;failureMessage;bytes;sentBytes;grpThreads;allThreads;URL;Latency;IdleTime;Connect
+                1700000000000;120;Login;200;OK;Thread1;text;true;;500;100;1;1;http://test/login;100;0;10
+                1700000001000;150;Login;200;OK;Thread2;text;true;;500;100;1;1;http://test/login;110;0;10
+                """;
+
+        ParsedMetrics result = parser.parse(toStream(csv));
+        List<TestMetric> aggregateMetrics = result.getAggregateMetrics();
+
+        assertEquals(1, aggregateMetrics.size());
+        TestMetric login = aggregateMetrics.get(0);
+        assertEquals("Login", login.getRequestName());
+        assertEquals(135.0, login.getAvgResponseTime(), 1.0);
+    }
+
     private InputStream toStream(String content) {
         return new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
     }
 }
+

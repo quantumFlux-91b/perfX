@@ -123,7 +123,9 @@ postgresql:
 ingress:
   enabled: true
   className: "nginx"          # Set to "" for OpenShift (uses Routes)
-  annotations: {}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
   # annotations:
   #   cert-manager.io/cluster-issuer: letsencrypt-prod
 

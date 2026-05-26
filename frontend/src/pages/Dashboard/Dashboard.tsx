@@ -29,9 +29,28 @@ const Dashboard: React.FC = () => {
          .then(res => {
              const sorted = res.data.sort((a: any, b: any) => new Date(a.uploadTimestamp).getTime() - new Date(b.uploadTimestamp).getTime());
              const processed = sorted.map((r: any) => {
-                 const avgRt = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].avgResponseTime) : 0;
-                 const throughput = r.metrics && r.metrics.length > 0 ? Math.round(r.metrics[0].throughput) : 0;
-                 const errorRate = r.metrics && r.metrics.length > 0 ? Number((r.metrics.reduce((acc: number, m: any) => acc + m.errorRate, 0) / r.metrics.length * 100).toFixed(2)) : 0;
+                 let avgRt = 0;
+                 let throughput = 0;
+                 let errorRate = 0;
+
+                 if (r.metrics && r.metrics.length > 0) {
+                     const totalThroughput = r.metrics.reduce((acc: number, m: any) => acc + m.throughput, 0);
+                     throughput = Math.round(totalThroughput);
+
+                     if (totalThroughput > 0) {
+                         const totalRtWeighted = r.metrics.reduce((acc: number, m: any) => acc + (m.avgResponseTime * m.throughput), 0);
+                         avgRt = Math.round(totalRtWeighted / totalThroughput);
+
+                         const totalErWeighted = r.metrics.reduce((acc: number, m: any) => acc + (m.errorRate * m.throughput), 0);
+                         errorRate = Number(((totalErWeighted / totalThroughput) * 100).toFixed(2));
+                     } else {
+                         const sumRt = r.metrics.reduce((acc: number, m: any) => acc + m.avgResponseTime, 0);
+                         avgRt = Math.round(sumRt / r.metrics.length);
+
+                         const sumEr = r.metrics.reduce((acc: number, m: any) => acc + m.errorRate, 0);
+                         errorRate = Number(((sumEr / r.metrics.length) * 100).toFixed(2));
+                     }
+                 }
                  
                  return {
                      id: r.id,

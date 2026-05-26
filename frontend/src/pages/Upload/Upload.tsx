@@ -22,6 +22,16 @@ const Upload: React.FC = () => {
     if (app) setAppName(decodeURIComponent(app));
   }, [location]);
 
+  const handleFileChange = (selectedFile: File | null) => {
+    if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
+      alert("File size exceeds the maximum limit of 10MB.");
+      setFile(null);
+      return;
+    }
+    setFile(selectedFile);
+  };
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !appName || !version) return;
@@ -94,7 +104,7 @@ const Upload: React.FC = () => {
               type="file"
               id="file-upload"
               required
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               style={{ display: 'none' }}
             />
             {/* Custom dropzone — clicking anywhere triggers the hidden input */}
@@ -103,7 +113,7 @@ const Upload: React.FC = () => {
               className={`upload-dropzone${dragover ? ' dragover' : ''}`}
               onDragOver={(e) => { e.preventDefault(); setDragover(true); }}
               onDragLeave={() => setDragover(false)}
-              onDrop={(e) => { e.preventDefault(); setDragover(false); const dropped = e.dataTransfer.files?.[0]; if (dropped) setFile(dropped); }}
+              onDrop={(e) => { e.preventDefault(); setDragover(false); const dropped = e.dataTransfer.files?.[0]; if (dropped) handleFileChange(dropped); }}
             >
               <span className="upload-dropzone-icon">📄</span>
               <span className="upload-dropzone-text">
