@@ -246,7 +246,7 @@ const Dashboard: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={runs}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                    <XAxis dataKey="version" stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="version" stroke="var(--text-muted)" height={60} tickMargin={5} axisLine={false} tickLine={false} tick={{ fontSize: 10, angle: -35, textAnchor: 'end' }} interval={0} />
                     <YAxis stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }} />
                     <Line type="monotone" dataKey="avgRt" stroke="var(--primary)" strokeWidth={3} dot={{ r: 6, fill: 'var(--bg-base)', strokeWidth: 2 }} activeDot={{ r: 8, fill: 'var(--primary)' }} />
@@ -261,7 +261,7 @@ const Dashboard: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={runs}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                    <XAxis dataKey="version" stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="version" stroke="var(--text-muted)" height={60} tickMargin={5} axisLine={false} tickLine={false} tick={{ fontSize: 10, angle: -35, textAnchor: 'end' }} interval={0} />
                     <YAxis stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }} />
                     <Line type="monotone" dataKey="throughput" stroke="var(--accent)" strokeWidth={3} dot={{ r: 6, fill: 'var(--bg-base)', strokeWidth: 2 }} activeDot={{ r: 8, fill: 'var(--accent)' }} />
@@ -276,7 +276,7 @@ const Dashboard: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={runs}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                    <XAxis dataKey="version" stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="version" stroke="var(--text-muted)" height={60} tickMargin={5} axisLine={false} tickLine={false} tick={{ fontSize: 10, angle: -35, textAnchor: 'end' }} interval={0} />
                     <YAxis stroke="var(--text-muted)" tickMargin={10} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface-hover)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }} />
                     <Line type="monotone" dataKey="errorRate" stroke="var(--error)" strokeWidth={3} dot={{ r: 6, fill: 'var(--bg-base)', strokeWidth: 2 }} activeDot={{ r: 8, fill: 'var(--error)' }} />
